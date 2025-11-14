@@ -1,0 +1,1324 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GenomicsAI Pro - Advanced Clinical Genomics Platform</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --primary: #667eea;
+      --primary-dark: #5568d3;
+      --secondary: #764ba2;
+      --success: #27ae60;
+      --warning: #f39c12;
+      --danger: #e74c3c;
+      --info: #3498db;
+      --dark: #1a1a2e;
+      --light: #f8f9fa;
+      --border: #e9ecef;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', sans-serif;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      color: #2c3e50;
+      direction: rtl;
+      min-height: 100vh;
+    }
+    .header {
+      background: rgba(255,255,255,0.98);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+    .header-top {
+      background: linear-gradient(135deg, var(--dark) 0%, #16213e 100%);
+      padding: 8px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: #fff;
+    }
+    .header-info { display: flex; gap: 20px; }
+    .header-main {
+      padding: 12px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 3px solid var(--primary);
+    }
+    .logo-container { display: flex; align-items: center; gap: 15px; }
+    .logo {
+      font-size: 28px;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
+    }
+    .logo-subtitle {
+      font-size: 10px;
+      color: #7f8c8d;
+      font-weight: 600;
+      margin-top: 2px;
+    }
+    .main-nav { display: flex; gap: 5px; }
+    .nav-btn {
+      background: transparent;
+      color: #2c3e50;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .nav-btn:hover { background: var(--light); color: var(--primary); }
+    .nav-btn.active {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      color: white;
+      box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+    }
+    .user-section {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    .notification-btn {
+      position: relative;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 20px;
+      color: #7f8c8d;
+      padding: 5px;
+      transition: all 0.3s;
+    }
+    .notification-btn:hover { color: var(--primary); transform: scale(1.1); }
+    .notification-badge {
+      position: absolute;
+      top: 0;
+      right: 0;
+      background: var(--danger);
+      color: white;
+      border-radius: 50%;
+      width: 16px;
+      height: 16px;
+      font-size: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
+    .user-profile {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 12px;
+      background: var(--light);
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .user-profile:hover { background: #e9ecef; }
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      font-size: 13px;
+    }
+    .user-info { display: flex; flex-direction: column; }
+    .user-name { font-size: 13px; font-weight: 700; color: var(--dark); }
+    .user-role { font-size: 10px; color: #7f8c8d; }
+
+    .container {
+      max-width: 1600px;
+      margin: 20px auto;
+      padding: 0 20px;
+    }
+    .page { display: none; animation: fadeIn 0.4s ease; }
+    .page.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .page-header {
+      background: white;
+      padding: 20px 25px;
+      border-radius: 12px;
+      box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .page-title { font-size: 24px; color: var(--dark); font-weight: 700; display: flex; align-items: center; gap: 10px; }
+    .breadcrumb { font-size: 12px; color: #7f8c8d; margin-top: 5px; }
+    .page-actions { display: flex; gap: 8px; }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 18px;
+      margin-bottom: 25px;
+    }
+    .stat-card {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+      transition: all 0.3s;
+      border-top: 3px solid var(--primary);
+      position: relative;
+      overflow: hidden;
+    }
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, transparent 0%, rgba(102, 126, 234, 0.05) 100%);
+      pointer-events: none;
+    }
+    .stat-card:hover { transform: translateY(-5px); box-shadow: 0 4px 20px rgba(0,0,0,0.12); }
+    .stat-icon { font-size: 32px; margin-bottom: 10px; }
+    .stat-value { font-size: 32px; font-weight: 900; color: var(--dark); margin: 10px 0 5px; }
+    .stat-label { font-size: 13px; color: #7f8c8d; font-weight: 600; }
+    .stat-change { font-size: 11px; margin-top: 8px; font-weight: 600; }
+    .stat-change.positive { color: var(--success); }
+    .stat-change.negative { color: var(--danger); }
+
+    .content-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+      margin-bottom: 20px;
+    }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid var(--light);
+    }
+    .card-title { font-size: 16px; font-weight: 700; color: var(--dark); }
+    .card-action { font-size: 12px; color: var(--primary); cursor: pointer; font-weight: 600; transition: all 0.3s; }
+    .card-action:hover { color: var(--primary-dark); text-decoration: underline; }
+
+    .case-item {
+      padding: 15px;
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .case-item:hover { border-color: var(--primary); background: var(--light); transform: translateX(-3px); }
+    .case-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px; }
+    .case-id { font-weight: 700; font-size: 14px; color: var(--dark); }
+    .badge {
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .badge-complete { background: #d4edda; color: #155724; }
+    .badge-progress { background: #d1ecf1; color: #0c5460; }
+    .badge-pending { background: #fff3cd; color: #856404; }
+    .badge-urgent { background: #f8d7da; color: #721c24; }
+    .case-info { font-size: 12px; color: #7f8c8d; margin-bottom: 8px; line-height: 1.5; }
+    .case-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+    .tag { background: var(--light); padding: 3px 8px; border-radius: 10px; font-size: 10px; color: #495057; font-weight: 600; }
+
+    .analysis-tabs {
+      display: flex;
+      gap: 3px;
+      background: white;
+      padding: 12px 15px 0;
+      border-radius: 10px 10px 0 0;
+      box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+      overflow-x: auto;
+    }
+    .tab-btn {
+      padding: 10px 16px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      color: #7f8c8d;
+      border-radius: 6px 6px 0 0;
+      transition: all 0.2s;
+      border-bottom: 3px solid transparent;
+      white-space: nowrap;
+    }
+    .tab-btn:hover { color: var(--primary); background: var(--light); }
+    .tab-btn.active { color: var(--primary); background: white; border-bottom-color: var(--primary); }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .analysis-container {
+      background: white;
+      border-radius: 0 0 10px 10px;
+      box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+      min-height: 400px;
+    }
+
+    .qc-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      padding: 20px;
+    }
+    .qc-metric {
+      padding: 18px;
+      background: linear-gradient(135deg, var(--light) 0%, #e9ecef 100%);
+      border-radius: 8px;
+      border-right: 3px solid var(--primary);
+      transition: all 0.3s;
+    }
+    .qc-metric:hover { transform: translateY(-3px); box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+    .qc-label { font-size: 11px; color: #7f8c8d; margin-bottom: 6px; font-weight: 600; text-transform: uppercase; }
+    .qc-value { font-size: 24px; font-weight: 700; color: var(--dark); margin-bottom: 4px; }
+    .qc-status { font-size: 10px; font-weight: 700; margin-top: 6px; }
+    .qc-status.pass { color: var(--success); }
+    .qc-status.warn { color: var(--warning); }
+    .qc-status.fail { color: var(--danger); }
+
+    .filter-panel {
+      padding: 15px 20px;
+      background: var(--light);
+      border-bottom: 2px solid var(--border);
+    }
+    .filter-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+    .filter-chip {
+      padding: 6px 12px;
+      border: 2px solid #dee2e6;
+      background: white;
+      border-radius: 16px;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .filter-chip:hover { border-color: var(--primary); }
+    .filter-chip.active { background: var(--primary); color: white; border-color: var(--primary); }
+    .chip-count { background: rgba(255,255,255,0.3); padding: 2px 5px; border-radius: 8px; font-size: 9px; }
+
+    .variant-table-wrapper { overflow-x: auto; max-height: 600px; overflow-y: auto; }
+    .variant-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .variant-table thead {
+      background: linear-gradient(135deg, var(--dark) 0%, #16213e 100%);
+      color: white;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .variant-table th {
+      padding: 12px 10px;
+      text-align: right;
+      font-weight: 600;
+      font-size: 11px;
+      white-space: nowrap;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .variant-table td { padding: 10px; border-bottom: 1px solid var(--light); }
+    .variant-table tbody tr:hover { background: var(--light); }
+    .variant-table tbody tr.highlighted { background: #fff3cd; }
+    .gene-link { color: var(--primary); font-weight: 700; text-decoration: none; cursor: pointer; }
+    .gene-link:hover { text-decoration: underline; }
+    .classification {
+      padding: 4px 10px;
+      border-radius: 10px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      display: inline-block;
+      letter-spacing: 0.3px;
+    }
+    .pathogenic { background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); color: white; }
+    .likely-pathogenic { background: linear-gradient(135deg, #e67e22 0%, #d35400 100%); color: white; }
+    .vus { background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%); color: white; }
+    .likely-benign { background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); color: white; }
+    .benign { background: linear-gradient(135deg, #27ae60 0%, #229954 100%); color: white; }
+    .score-badge { padding: 4px 8px; border-radius: 8px; font-weight: 700; font-size: 10px; }
+    .score-high { background: #ffebee; color: #c62828; }
+    .score-moderate { background: #fff3e0; color: #e65100; }
+    .score-low { background: #e8f5e9; color: #2e7d32; }
+    .ai-score { display: flex; align-items: center; gap: 4px; font-weight: 700; font-size: 11px; }
+
+    /* Chart Grid */
+    .chart-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+    .chart-container {
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      height: 550px;
+    }
+    .chart-title { font-size: 14px; font-weight: 700; margin-bottom: 10px; }
+
+    /* Database Grid */
+    .db-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+    }
+    .db-status-card {
+      padding: 15px;
+      border-radius: 8px;
+      border-left: 4px solid var(--primary);
+      background: var(--light);
+    }
+    .db-name { font-weight: 700; font-size: 14px; margin-bottom: 5px; color: var(--dark); }
+    .db-info { font-size: 11px; color: #7f8c8d; }
+    .db-version { font-size: 10px; color: #7f8c8d; margin-top: 5px; }
+    .db-status { font-size: 12px; font-weight: 700; margin-top: 5px; color: var(--success); }
+
+    .btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.3s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      color: white;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4); }
+    .btn-secondary { background: var(--light); color: #495057; }
+    .btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
+    .btn-outline:hover { background: var(--primary); color: white; }
+    .btn-small { padding: 5px 10px; font-size: 11px; }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.7);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal.active { display: flex; }
+    .modal-content {
+      background: white;
+      border-radius: 12px;
+      max-width: 900px;
+      width: 90%;
+      max-height: 85vh;
+      overflow: hidden;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+      animation: modalIn 0.3s;
+      display: flex;
+      flex-direction: column;
+    }
+    @keyframes modalIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+    .modal-header {
+      padding: 20px 25px;
+      background: linear-gradient(135deg, var(--dark) 0%, #16213e 100%);
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .modal-title { font-size: 18px; font-weight: 700; }
+    .close-modal {
+      cursor: pointer;
+      font-size: 24px;
+      color: white;
+      transition: transform 0.2s;
+    }
+    .close-modal:hover { transform: rotate(90deg); }
+    .modal-body { padding: 25px; overflow-y: auto; flex: 1; }
+    .detail-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+    .detail-item { background: var(--light); padding: 12px; border-radius: 6px; }
+    .detail-label { font-size: 10px; color: #7f8c8d; font-weight: 600; margin-bottom: 5px; text-transform: uppercase; }
+    .detail-value { font-size: 14px; color: var(--dark); font-weight: 600; }
+
+    @media (max-width: 1200px) { .content-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 768px) {
+      .header-main { flex-direction: column; gap: 12px; }
+      .main-nav { flex-wrap: wrap; justify-content: center; }
+      .stats-grid { grid-template-columns: 1fr; }
+      .chart-grid { grid-template-columns: 1fr; }
+      .modal-content { width: 95%; max-height: 90vh; }
+    }
+    .text-center { text-align: center; }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div class="header-info">
+      <span>🏥 GenomicsAI Clinical Laboratory</span>
+      <span>📞 +98-21-12345678</span>
+      <span>📧 support@genomicsai.pro</span>
+    </div>
+    <div class="header-info">
+      <span>🗄️ Databases: ClinVar | OMIM | gnomAD | dbSNP | UniProt | ACMG</span>
+      <span>⏰ ۱۴۰۴/۰۸/۲۰</span>
+    </div>
+  </div>
+  <div class="header-main">
+    <div class="logo-container">
+      <div>
+        <div class="logo">GenomicsAI Pro</div>
+        <div class="logo-subtitle">AI-Powered Clinical Genomic Analysis Platform v3.2</div>
+      </div>
+    </div>
+    <div class="main-nav">
+      <button class="nav-btn active" onclick="showPage('dashboard')">🏠 Dashboard</button>
+      <button class="nav-btn" onclick="showPage('cases')">📋 Cases</button>
+      <button class="nav-btn" onclick="showPage('upload')">📤 Upload</button>
+      <button class="nav-btn" onclick="showPage('analysis')">🔬 Analysis</button>
+      <button class="nav-btn" onclick="showPage('ai')">🤖 AI Engine</button>
+      <button class="nav-btn" onclick="showPage('reports')">📊 Reports</button>
+      <button class="nav-btn" onclick="showPage('databases')">🗄️ Databases</button>
+      <button class="nav-btn" onclick="showPage('settings')">⚙️ Settings</button>
+    </div>
+    <div class="user-section">
+      <button class="notification-btn" onclick="showNotifications()">
+        🔔
+        <span class="notification-badge">5</span>
+      </button>
+      <div class="user-profile">
+        <div class="user-avatar">د.ا</div>
+        <div class="user-info">
+          <div class="user-name">Dr. Ahmadi</div>
+          <div class="user-role">Clinical Geneticist</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- DASHBOARD PAGE -->
+<div id="dashboard" class="page active">
+  <div class="page-header">
+    <div>
+      <div class="page-title">📊 Clinical Dashboard</div>
+      <div class="breadcrumb">Home / Dashboard</div>
+    </div>
+    <div class="page-actions">
+      <button class="btn btn-primary btn-small" onclick="showPage('upload')">➕ New Case</button>
+      <button class="btn btn-outline btn-small">📤 Export</button>
+    </div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon">📋</div>
+      <div class="stat-value">387</div>
+      <div class="stat-label">Total Cases</div>
+      <div class="stat-change positive">↑ 12% vs last month</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">✅</div>
+      <div class="stat-value">289</div>
+      <div class="stat-label">Completed</div>
+      <div class="stat-change positive">↑ 8%</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">⏳</div>
+      <div class="stat-value">58</div>
+      <div class="stat-label">Processing</div>
+      <div class="stat-change">Stable</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">🧬</div>
+      <div class="stat-value">12,847</div>
+      <div class="stat-label">Total Variants</div>
+      <div class="stat-change positive">↑ 15%</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">⚠️</div>
+      <div class="stat-value">127</div>
+      <div class="stat-label">Pathogenic Variants</div>
+      <div class="stat-change negative">↓ 5%</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">🤖</div>
+      <div class="stat-value">96.8%</div>
+      <div class="stat-label">AI Accuracy</div>
+      <div class="stat-change positive">↑ 2.1%</div>
+    </div>
+  </div>
+
+  <!-- Charts Row 1 -->
+  <div class="chart-grid">
+    <div class="chart-container">
+      <div class="chart-title">📊 Case Distribution by Type</div>
+      <canvas id="caseTypeChart"></canvas>
+    </div>
+    <div class="chart-container">
+      <div class="chart-title">📈 Variants by Classification</div>
+      <canvas id="classificationChart"></canvas>
+    </div>
+    <div class="chart-container">
+      <div class="chart-title">🔍 Database Usage</div>
+      <canvas id="dbUsageChart"></canvas>
+    </div>
+  </div>
+
+  <div class="content-grid">
+    <div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Recent Cases</div>
+          <div class="card-action" onclick="showPage('cases')">View All →</div>
+        </div>
+
+        <div class="case-item" onclick="showPage('analysis')">
+          <div class="case-header">
+            <div class="case-id">CASE-2024-1847 - Sarah Mohammad</div>
+            <span class="badge badge-complete">COMPLETE</span>
+          </div>
+          <div class="case-info">
+            📊 WES | 📅 2024-11-18 | 🧬 2,847 variants | ⚠️ 3 Pathogenic | 🤖 AI: 98%
+          </div>
+          <div class="case-tags">
+            <span class="tag">Epilepsy</span>
+            <span class="tag">Dev. Delay</span>
+            <span class="tag">SCN1A</span>
+          </div>
+        </div>
+
+        <div class="case-item">
+          <div class="case-header">
+            <div class="case-id">CASE-2024-1848 - Amir Rezaei</div>
+            <span class="badge badge-progress">PROCESSING</span>
+          </div>
+          <div class="case-info">
+            📊 WGS | 📅 2024-11-19 | ⏱️ Variant Calling 87%
+          </div>
+          <div class="case-tags">
+            <span class="tag">Cardiac</span>
+            <span class="tag">Family History</span>
+          </div>
+        </div>
+
+        <div class="case-item">
+          <div class="case-header">
+            <div class="case-id">CASE-2024-1849 - Zahra Ahmadi</div>
+            <span class="badge badge-pending">PENDING</span>
+          </div>
+          <div class="case-info">
+            📊 Cancer Panel | 📅 2024-11-17 | Waiting for upload
+          </div>
+          <div class="case-tags">
+            <span class="tag">Breast Cancer</span>
+            <span class="tag">BRCA</span>
+          </div>
+        </div>
+
+        <div class="case-item">
+          <div class="case-header">
+            <div class="case-id">CASE-2024-1850 - Ali Karimi</div>
+            <span class="badge badge-urgent">URGENT</span>
+          </div>
+          <div class="case-info">
+            📊 Pharmacogenomics | 📅 2024-11-20 | 28 drugs analyzed - Warfarin dosing
+          </div>
+          <div class="case-tags">
+            <span class="tag">PGx</span>
+            <span class="tag">CYP2C9</span>
+          </div>
+        </div>
+
+        <div class="case-item">
+          <div class="case-header">
+            <div class="case-id">CASE-2024-1851 - Fatima Nouri</div>
+            <span class="badge badge-complete">COMPLETE</span>
+          </div>
+          <div class="case-info">
+            📊 WES - Trio | 📅 2024-11-15 | 🧬 4,126 variants | ⚠️ 2 De novo
+          </div>
+          <div class="case-tags">
+            <span class="tag">Autism</span>
+            <span class="tag">Trio Analysis</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">System Activity</div>
+        </div>
+        <div style="font-size: 12px;">
+          <div style="padding: 10px 0; border-bottom: 1px solid var(--light);">
+            <strong>Dr. Ahmadi</strong> approved CASE-1847<br>
+            <span style="font-size: 10px; color: #7f8c8d;">2 hours ago</span>
+          </div>
+          <div style="padding: 10px 0; border-bottom: 1px solid var(--light);">
+            <strong>AI Engine</strong> identified 3 Pathogenic variants<br>
+            <span style="font-size: 10px; color: #7f8c8d;">4 hours ago</span>
+          </div>
+          <div style="padding: 10px 0; border-bottom: 1px solid var(--light);">
+            <strong>System</strong> Updated ClinVar v2024.11<br>
+            <span style="font-size: 10px; color: #7f8c8d;">1 day ago</span>
+          </div>
+          <div style="padding: 10px 0;">
+            <strong>AI Model</strong> Upgraded to v3.2<br>
+            <span style="font-size: 10px; color: #7f8c8d;">2 days ago</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">🗄️ Database Status</div>
+        </div>
+        <div class="db-grid">
+          <div class="db-status-card" style="border-left-color: #e74c3c;">
+            <div class="db-name">ClinVar</div>
+            <div class="db-info">1.2M variants</div>
+            <div class="db-version">v2024.11</div>
+            <div class="db-status">✓ Online</div>
+          </div>
+          <div class="db-status-card" style="border-left-color: #27ae60;">
+            <div class="db-name">OMIM</div>
+            <div class="db-info">28K+ genes</div>
+            <div class="db-version">v2024.11</div>
+            <div class="db-status">✓ Online</div>
+          </div>
+          <div class="db-status-card" style="border-left-color: #3498db;">
+            <div class="db-name">gnomAD</div>
+            <div class="db-info">800M+ vars</div>
+            <div class="db-version">v4.1</div>
+            <div class="db-status">✓ Online</div>
+          </div>
+          <div class="db-status-card" style="border-left-color: #f39c12;">
+            <div class="db-name">dbSNP</div>
+            <div class="db-info">700M+ SNPs</div>
+            <div class="db-version">v158</div>
+            <div class="db-status">✓ Online</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">System Performance</div>
+        </div>
+        <div style="font-size: 12px;">
+          <div style="margin-bottom: 10px;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+              <span>Database Response</span>
+              <span style="color: var(--success); font-weight: 700;">1.2s</span>
+            </div>
+            <div style="background: var(--light); height: 6px; border-radius: 3px; overflow: hidden;">
+              <div style="background: var(--success); width: 85%; height: 100%;"></div>
+            </div>
+          </div>
+          <div style="margin-bottom: 10px;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+              <span>API Response</span>
+              <span style="color: var(--info); font-weight: 700;">0.8s</span>
+            </div>
+            <div style="background: var(--light); height: 6px; border-radius: 3px; overflow: hidden;">
+              <div style="background: var(--info); width: 65%; height: 100%;"></div>
+            </div>
+          </div>
+          <div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+              <span>System Uptime</span>
+              <span style="color: var(--success); font-weight: 700;">99.9%</span>
+            </div>
+            <div style="background: var(--light); height: 6px; border-radius: 3px; overflow: hidden;">
+              <div style="background: var(--success); width: 99.9%; height: 100%;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ANALYSIS PAGE -->
+<div id="analysis" class="page">
+  <div class="page-header">
+    <div>
+      <div class="page-title">🔬 Variant Analysis - CASE-2024-1847</div>
+      <div class="breadcrumb">Home / Analysis / Sarah Mohammad</div>
+    </div>
+    <div class="page-actions">
+      <button class="btn btn-primary btn-small">📄 Generate Report</button>
+      <button class="btn btn-secondary btn-small">💾 Save</button>
+      <button class="btn btn-outline btn-small">📤 Export VCF</button>
+    </div>
+  </div>
+
+  <div class="analysis-tabs">
+    <button class="tab-btn active" onclick="switchTab('qc', this)">📊 QC Metrics</button>
+    <button class="tab-btn" onclick="switchTab('variants', this)">🧬 Variants (2,847)</button>
+    <button class="tab-btn" onclick="switchTab('cnv', this)">📈 CNV Analysis</button>
+    <button class="tab-btn" onclick="switchTab('roh', this)">🔄 ROH Analysis</button>
+    <button class="tab-btn" onclick="switchTab('pedigree', this)">👨‍👩‍👧‍👦 Pedigree</button>
+    <button class="tab-btn" onclick="switchTab('interpretation', this)">📝 Interpretation</button>
+  </div>
+
+  <div class="analysis-container">
+    <!-- QC Tab -->
+    <div id="qc-tab" class="tab-content active">
+      <div class="qc-grid">
+        <div class="qc-metric">
+          <div class="qc-label">Coverage Mean</div>
+          <div class="qc-value">85.3x</div>
+          <div class="qc-status pass">✓ PASS</div>
+        </div>
+        <div class="qc-metric">
+          <div class="qc-label">Coverage >20x</div>
+          <div class="qc-value">98.7%</div>
+          <div class="qc-status pass">✓ PASS</div>
+        </div>
+        <div class="qc-metric">
+          <div class="qc-label">Q30 Bases</div>
+          <div class="qc-value">94.2%</div>
+          <div class="qc-status pass">✓ PASS</div>
+        </div>
+        <div class="qc-metric">
+          <div class="qc-label">Mapping Rate</div>
+          <div class="qc-value">99.1%</div>
+          <div class="qc-status pass">✓ PASS</div>
+        </div>
+        <div class="qc-metric">
+          <div class="qc-label">Total Reads</div>
+          <div class="qc-value">127M</div>
+          <div class="qc-status pass">✓ PASS</div>
+        </div>
+        <div class="qc-metric">
+          <div class="qc-label">Duplication Rate</div>
+          <div class="qc-value">8.3%</div>
+          <div class="qc-status pass">✓ PASS</div>
+        </div>
+        <div class="qc-metric">
+          <div class="qc-label">Insert Size</div>
+          <div class="qc-value">387 bp</div>
+          <div class="qc-status pass">✓ PASS</div>
+        </div>
+        <div class="qc-metric">
+          <div class="qc-label">Ti/Tv Ratio</div>
+          <div class="qc-value">2.08</div>
+          <div class="qc-status pass">✓ PASS</div>
+        </div>
+        <div class="qc-metric">
+          <div class="qc-label">Contamination</div>
+          <div class="qc-value">0.3%</div>
+          <div class="qc-status pass">✓ PASS</div>
+        </div>
+        <div class="qc-metric">
+          <div class="qc-label">GC Content</div>
+          <div class="qc-value">42.1%</div>
+          <div class="qc-status pass">✓ PASS</div>
+        </div>
+      </div>
+
+      <div class="chart-grid">
+        <div class="chart-container">
+          <div class="chart-title">Coverage Distribution</div>
+          <canvas id="coverageChart"></canvas>
+        </div>
+        <div class="chart-container">
+          <div class="chart-title">Q-Score Distribution</div>
+          <canvas id="qscoreChart"></canvas>
+        </div>
+        <div class="chart-container">
+          <div class="chart-title">Read Quality</div>
+          <canvas id="qualityChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Variants Tab -->
+    <div id="variants-tab" class="tab-content">
+      <div class="filter-panel">
+        <div class="filter-chips">
+          <div class="filter-chip active" onclick="filterVariants('all', this)">All <span class="chip-count">2847</span></div>
+          <div class="filter-chip" onclick="filterVariants('pathogenic', this)">Pathogenic <span class="chip-count">3</span></div>
+          <div class="filter-chip" onclick="filterVariants('likely', this)">Likely Path <span class="chip-count">8</span></div>
+          <div class="filter-chip" onclick="filterVariants('vus', this)">VUS <span class="chip-count">24</span></div>
+          <div class="filter-chip" onclick="filterVariants('benign', this)">Benign <span class="chip-count">2812</span></div>
+        </div>
+      </div>
+
+      <div class="variant-table-wrapper">
+        <table class="variant-table">
+          <thead>
+            <tr>
+              <th>Gene</th>
+              <th>Chr:Position</th>
+              <th>Change</th>
+              <th>Type</th>
+              <th>Impact</th>
+              <th>Classification</th>
+              <th>MAF</th>
+              <th>CADD</th>
+              <th>REVEL</th>
+              <th>ClinVar</th>
+              <th>🤖 AI</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="highlighted">
+              <td><a href="#" class="gene-link" onclick="showVariantModal('SCN1A'); return false;">SCN1A</a></td>
+              <td>chr2:166152516</td>
+              <td>c.4942C>T</td>
+              <td>SNV</td>
+              <td>Missense</td>
+              <td><span class="classification pathogenic">Pathogenic</span></td>
+              <td>0.00001</td>
+              <td><span class="score-badge score-high">34.2</span></td>
+              <td><span class="score-badge score-high">0.98</span></td>
+              <td>VCV000123456</td>
+              <td><span class="ai-score">🤖 98%</span></td>
+              <td><button class="btn btn-primary btn-small" onclick="showVariantModal('SCN1A')">Details</button></td>
+            </tr>
+            <tr class="highlighted">
+              <td><a href="#" class="gene-link" onclick="showVariantModal('BRCA1'); return false;">BRCA1</a></td>
+              <td>chr17:43094464</td>
+              <td>c.68_69delAG</td>
+              <td>Deletion</td>
+              <td>Frameshift</td>
+              <td><span class="classification pathogenic">Pathogenic</span></td>
+              <td>-</td>
+              <td><span class="score-badge score-high">31.0</span></td>
+              <td>-</td>
+              <td>VCV000234567</td>
+              <td><span class="ai-score">🤖 95%</span></td>
+              <td><button class="btn btn-primary btn-small" onclick="showVariantModal('BRCA1')">Details</button></td>
+            </tr>
+            <tr class="highlighted">
+              <td><a href="#" class="gene-link" onclick="showVariantModal('MECP2'); return false;">MECP2</a></td>
+              <td>chrX:154021565</td>
+              <td>c.473C>T</td>
+              <td>SNV</td>
+              <td>Missense</td>
+              <td><span class="classification likely-pathogenic">Likely Path</span></td>
+              <td>0.000015</td>
+              <td><span class="score-badge score-high">28.5</span></td>
+              <td><span class="score-badge score-high">0.89</span></td>
+              <td>VCV000345678</td>
+              <td><span class="ai-score">🤖 92%</span></td>
+              <td><button class="btn btn-primary btn-small" onclick="showVariantModal('MECP2')">Details</button></td>
+            </tr>
+            <tr>
+              <td><a href="#" class="gene-link" onclick="showVariantModal('CFTR'); return false;">CFTR</a></td>
+              <td>chr7:117559590</td>
+              <td>c.1521_1523del</td>
+              <td>In-frame Del</td>
+              <td>In-frame deletion</td>
+              <td><span class="classification vus">VUS</span></td>
+              <td>0.0008</td>
+              <td><span class="score-badge score-moderate">22.1</span></td>
+              <td><span class="score-badge score-moderate">0.52</span></td>
+              <td>VCV000456789</td>
+              <td><span class="ai-score">🤖 67%</span></td>
+              <td><button class="btn btn-primary btn-small" onclick="showVariantModal('CFTR')">Details</button></td>
+            </tr>
+            <tr class="highlighted">
+              <td><a href="#" class="gene-link" onclick="showVariantModal('TP53'); return false;">TP53</a></td>
+              <td>chr17:7674220</td>
+              <td>c.743G>T</td>
+              <td>SNV</td>
+              <td>Nonsense</td>
+              <td><span class="classification likely-pathogenic">Likely Path</span></td>
+              <td>0.00003</td>
+              <td><span class="score-badge score-high">36.0</span></td>
+              <td>-</td>
+              <td>VCV000567890</td>
+              <td><span class="ai-score">🤖 89%</span></td>
+              <td><button class="btn btn-primary btn-small" onclick="showVariantModal('TP53')">Details</button></td>
+            </tr>
+            <tr>
+              <td><a href="#" class="gene-link" onclick="showVariantModal('APOE'); return false;">APOE</a></td>
+              <td>chr19:45411941</td>
+              <td>c.388T>C</td>
+              <td>SNV</td>
+              <td>Missense</td>
+              <td><span class="classification benign">Benign</span></td>
+              <td>0.145</td>
+              <td><span class="score-badge score-low">8.3</span></td>
+              <td><span class="score-badge score-low">0.12</span></td>
+              <td>VCV000678901</td>
+              <td><span class="ai-score">🤖 12%</span></td>
+              <td><button class="btn btn-primary btn-small" onclick="showVariantModal('APOE')">Details</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- CNV Tab -->
+    <div id="cnv-tab" class="tab-content" style="padding: 20px;">
+      <div style="font-size: 18px; font-weight: 700; margin-bottom: 15px;">📈 Copy Number Variants</div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px;">
+        <div style="padding: 18px; border: 2px solid var(--border); border-radius: 8px;">
+          <div style="font-weight: 700; margin-bottom: 8px; color: var(--danger);">🔻 Deletion</div>
+          <div style="font-size: 12px; color: #7f8c8d; line-height: 1.8;">
+            <div><strong>Position:</strong> chr15:22,748,589-22,791,612</div>
+            <div><strong>Size:</strong> 43 kb</div>
+            <div><strong>Genes:</strong> NIPA1, NIPA2</div>
+            <div><strong>Classification:</strong> <span class="classification pathogenic">Pathogenic</span></div>
+          </div>
+        </div>
+        <div style="padding: 18px; border: 2px solid var(--border); border-radius: 8px;">
+          <div style="font-weight: 700; margin-bottom: 8px; color: var(--info);">🔺 Duplication</div>
+          <div style="font-size: 12px; color: #7f8c8d; line-height: 1.8;">
+            <div><strong>Position:</strong> chr22:18,894,835-21,440,514</div>
+            <div><strong>Size:</strong> 2.5 Mb</div>
+            <div><strong>Genes:</strong> Multiple</div>
+            <div><strong>Classification:</strong> <span class="classification vus">VUS</span></div>
+          </div>
+        </div>
+        <div style="padding: 18px; border: 2px solid var(--border); border-radius: 8px;">
+          <div style="font-weight: 700; margin-bottom: 8px; color: var(--danger);">🔻 Deletion</div>
+          <div style="font-size: 12px; color: #7f8c8d; line-height: 1.8;">
+            <div><strong>Position:</strong> chr7:117,120,016-117,308,718</div>
+            <div><strong>Size:</strong> 189 kb</div>
+            <div><strong>Genes:</strong> CFTR</div>
+            <div><strong>Classification:</strong> <span class="classification likely-pathogenic">Likely Path</span></div>
+          </div>
+        </div>
+      </div>
+      <div style="background: var(--light); padding: 35px; border-radius: 10px; text-align: center; border: 2px dashed var(--border); margin-top: 15px;">
+        <div style="font-size: 48px; margin-bottom: 15px;">📊</div>
+        <div style="font-size: 16px; font-weight: 700;">CNV Visualization</div>
+        <div style="font-size: 12px; color: #7f8c8d; margin-top: 8px;">Visual representation of copy number variants across genome</div>
+      </div>
+    </div>
+
+    <!-- ROH Tab -->
+    <div id="roh-tab" class="tab-content" style="padding: 20px;">
+      <div style="font-size: 18px; font-weight: 700; margin-bottom: 15px;">🔄 Runs of Homozygosity</div>
+      <div style="background: var(--light); padding: 20px; border-radius: 8px; margin-bottom: 15px;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;">
+          <div>
+            <div style="font-size: 10px; color: #7f8c8d; font-weight: 600; margin-bottom: 5px;">Total ROH Regions</div>
+            <div style="font-size: 28px; font-weight: 700;">47</div>
+          </div>
+          <div>
+            <div style="font-size: 10px; color: #7f8c8d; font-weight: 600; margin-bottom: 5px;">Total Length</div>
+            <div style="font-size: 28px; font-weight: 700;">128 Mb</div>
+          </div>
+          <div>
+            <div style="font-size: 10px; color: #7f8c8d; font-weight: 600; margin-bottom: 5px;">Genome in ROH</div>
+            <div style="font-size: 28px; font-weight: 700;">4.2%</div>
+          </div>
+        </div>
+      </div>
+      <div style="border: 2px solid var(--border); border-radius: 8px; padding: 15px; margin-bottom: 10px;">
+        <div style="font-weight: 700; margin-bottom: 8px;">🔴 chr1:145,234,567-153,987,654</div>
+        <div style="font-size: 12px; color: #7f8c8d;">Size: 8.7 Mb | SNPs: 3,421 | Genes: 47 | Confidence: 99.8%</div>
+      </div>
+      <div style="border: 2px solid var(--border); border-radius: 8px; padding: 15px;">
+        <div style="font-weight: 700; margin-bottom: 8px;">🔴 chr6:28,477,797-33,448,354 (HLA)</div>
+        <div style="font-size: 12px; color: #7f8c8d;">Size: 4.9 Mb | SNPs: 1,892 | Genes: 28 | Confidence: 98.5%</div>
+      </div>
+    </div>
+
+    <!-- Pedigree Tab -->
+    <div id="pedigree-tab" class="tab-content" style="padding: 40px;">
+      <div style="text-align: center; background: var(--light); padding: 40px; border-radius: 10px;">
+        <div style="font-size: 50px; margin-bottom: 15px;">👨‍👩‍👧‍👦</div>
+        <div style="font-size: 18px; font-weight: 700;">Family Pedigree Viewer</div>
+        <div style="color: #7f8c8d; margin-top: 10px;">Analyze family history and inheritance patterns</div>
+        <button class="btn btn-primary" style="margin-top: 15px;">📤 Upload Pedigree Data</button>
+      </div>
+    </div>
+
+    <!-- Interpretation Tab -->
+    <div id="interpretation-tab" class="tab-content" style="padding: 20px;">
+      <div style="margin-bottom: 25px;">
+        <div style="font-size: 15px; font-weight: 700; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid var(--primary);">📋 Summary</div>
+        <div style="background: var(--light); padding: 15px; border-radius: 8px; line-height: 1.7; font-size: 13px;">
+          3 Pathogenic and 8 Likely Pathogenic variants identified. Primary pathogenic variant in SCN1A (AI score 98%) is causative for Dravet syndrome.
+        </div>
+      </div>
+
+      <div style="margin-bottom: 25px;">
+        <div style="font-size: 15px; font-weight: 700; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid var(--primary);">🧬 Key Variants</div>
+        <div style="padding: 12px; background: white; border-radius: 6px; margin-bottom: 10px; border-right: 3px solid var(--primary);">
+          <div style="font-size: 10px; color: #7f8c8d; font-weight: 600; margin-bottom: 6px; text-transform: uppercase;">SCN1A - Pathogenic - ClinVar: VCV000123456</div>
+          <div style="font-size: 12px; color: #495057; line-height: 1.6;">
+            c.4942C>T (p.Arg1648His) - OMIM #601769 - Dravet Syndrome - MAF 0.00001 - CADD 34.2
+          </div>
+        </div>
+
+        <div style="padding: 12px; background: white; border-radius: 6px; margin-bottom: 10px; border-right: 3px solid var(--primary);">
+          <div style="font-size: 10px; color: #7f8c8d; font-weight: 600; margin-bottom: 6px; text-transform: uppercase;">BRCA1 - Pathogenic - ClinVar: VCV000234567</div>
+          <div style="font-size: 12px; color: #495057; line-height: 1.6;">
+            c.68_69delAG - OMIM #113705 - Frameshift mutation - High impact
+          </div>
+        </div>
+      </div>
+
+      <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); padding: 25px; border-radius: 10px; color: white; text-align: center;">
+        <div style="font-size: 48px; font-weight: 900; margin-bottom: 15px;">98%</div>
+        <div style="font-size: 13px; line-height: 1.7;">
+          AI analysis with ClinVar, OMIM, gnomAD integration confirms SCN1A as causative with 98% confidence
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Other Pages (simplified) -->
+<div id="cases" class="page">
+  <div class="page-header"><div class="page-title">📋 Case Management</div></div>
+  <div class="card" style="text-align: center; padding: 60px;">📋 Complete Case Management System</div>
+</div>
+
+<div id="upload" class="page">
+  <div class="page-header"><div class="page-title">📤 Upload New Case</div></div>
+  <div class="card">
+    <div style="padding: 40px; text-align: center; border: 3px dashed var(--border); border-radius: 8px;">
+      <div style="font-size: 50px;">📂</div>
+      <div style="font-weight: 700; margin-top: 10px;">Drag VCF files here</div>
+      <button class="btn btn-primary" style="margin-top: 15px;">Choose File</button>
+    </div>
+  </div>
+</div>
+
+<div id="ai" class="page">
+  <div class="page-header"><div class="page-title">🤖 AI Engine</div></div>
+  <div class="card" style="text-align: center; padding: 60px;">🤖 AI-Powered Variant Prioritization v3.2</div>
+</div>
+
+<div id="reports" class="page">
+  <div class="page-header"><div class="page-title">📊 Reports</div></div>
+  <div class="card" style="text-align: center; padding: 60px;">📊 Report Generation System</div>
+</div>
+
+<div id="databases" class="page">
+  <div class="page-header"><div class="page-title">🗄️ Databases</div></div>
+  <div class="db-grid">
+    <div class="db-status-card" style="border-left-color: #e74c3c;">
+      <div class="db-name">ClinVar</div>
+      <div class="db-info">1.2M+ clinical variants | v2024.11</div>
+      <div class="db-status">✓ Online</div>
+    </div>
+    <div class="db-status-card" style="border-left-color: #27ae60;">
+      <div class="db-name">OMIM</div>
+      <div class="db-info">28,000+ genes | v2024.11</div>
+      <div class="db-status">✓ Online</div>
+    </div>
+    <div class="db-status-card" style="border-left-color: #3498db;">
+      <div class="db-name">gnomAD</div>
+      <div class="db-info">800M+ variants | v4.1</div>
+      <div class="db-status">✓ Online</div>
+    </div>
+    <div class="db-status-card" style="border-left-color: #f39c12;">
+      <div class="db-name">dbSNP</div>
+      <div class="db-info">700M+ SNPs | v158</div>
+      <div class="db-status">✓ Online</div>
+    </div>
+    <div class="db-status-card" style="border-left-color: #764ba2;">
+      <div class="db-name">UniProt</div>
+      <div class="db-info">230M+ sequences | v2024.10</div>
+      <div class="db-status">✓ Online</div>
+    </div>
+    <div class="db-status-card" style="border-left-color: #667eea;">
+      <div class="db-name">ACMG SF</div>
+      <div class="db-info">73 medically actionable | v3.1</div>
+      <div class="db-status">✓ Online</div>
+    </div>
+  </div>
+</div>
+
+<div id="settings" class="page">
+  <div class="page-header"><div class="page-title">⚙️ Settings</div></div>
+  <div class="card" style="text-align: center; padding: 60px;">⚙️ System Configuration</div>
+</div>
+
+</div>
+
+<!-- Modal -->
+<div id="variantModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <div class="modal-title" id="variantTitle">Variant Details</div>
+      <div class="close-modal" onclick="closeVariantModal()">✕</div>
+    </div>
+    <div class="modal-body" id="variantBody"></div>
+  </div>
+</div>
+
+<script>
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  window.scrollTo(0, 0);
+  setTimeout(initCharts, 100);
+}
+
+function switchTab(id, el) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.getElementById(id + '-tab').classList.add('active');
+  setTimeout(initCharts, 100);
+}
+
+function filterVariants(cls, el) {
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function showVariantModal(gene) {
+  document.getElementById('variantTitle').innerText = gene + ' - Variant Details';
+  document.getElementById('variantBody').innerHTML = `<div class="detail-grid">
+    <div class="detail-item"><div class="detail-label">Gene</div><div class="detail-value">${gene}</div></div>
+    <div class="detail-item"><div class="detail-label">Database Info</div><div class="detail-value">From ClinVar, OMIM, gnomAD</div></div>
+  </div>`;
+  document.getElementById('variantModal').classList.add('active');
+}
+
+function closeVariantModal() {
+  document.getElementById('variantModal').classList.remove('active');
+}
+
+function initCharts() {
+  // Case Type Chart
+  if (document.getElementById('caseTypeChart')) {
+    new Chart(document.getElementById('caseTypeChart'), {
+      type: 'doughnut',
+      data: {
+        labels: ['WES', 'WGS', 'Gene Panel', 'Pharma'],
+        datasets: [{
+          data: [120, 95, 150, 22],
+          backgroundColor: ['#667eea', '#764ba2', '#27ae60', '#f39c12']
+        }]
+      }
+    });
+  }
+
+  // Classification Chart
+  if (document.getElementById('classificationChart')) {
+    new Chart(document.getElementById('classificationChart'), {
+      type: 'bar',
+      data: {
+        labels: ['Pathogenic', 'Likely', 'VUS', 'Benign'],
+        datasets: [{
+          label: 'Variants',
+          data: [3, 8, 24, 2812],
+          backgroundColor: ['#e74c3c', '#e67e22', '#f39c12', '#27ae60']
+        }]
+      }
+    });
+  }
+
+  // DB Usage Chart
+  if (document.getElementById('dbUsageChart')) {
+    new Chart(document.getElementById('dbUsageChart'), {
+      type: 'pie',
+      data: {
+        labels: ['ClinVar', 'OMIM', 'gnomAD', 'dbSNP', 'UniProt'],
+        datasets: [{
+          data: [25, 20, 30, 15, 10],
+          backgroundColor: ['#e74c3c', '#27ae60', '#3498db', '#f39c12', '#764ba2']
+        }]
+      }
+    });
+  }
+
+  // Coverage Chart
+  if (document.getElementById('coverageChart')) {
+    new Chart(document.getElementById('coverageChart'), {
+      type: 'line',
+      data: {
+        labels: ['0x', '20x', '40x', '60x', '80x', '100x+'],
+        datasets: [{
+          label: 'Coverage',
+          data: [0, 50, 200, 500, 800, 500],
+          borderColor: '#667eea',
+          backgroundColor: 'rgba(102, 126, 234, 0.1)',
+          tension: 0.4
+        }]
+      }
+    });
+  }
+
+  // Q-Score Chart
+  if (document.getElementById('qscoreChart')) {
+    new Chart(document.getElementById('qscoreChart'), {
+      type: 'bar',
+      data: {
+        labels: ['Q10', 'Q20', 'Q30', 'Q40'],
+        datasets: [{
+          label: '%',
+          data: [98, 96, 94, 85],
+          backgroundColor: '#667eea'
+        }]
+      }
+    });
+  }
+
+  // Quality Chart
+  if (document.getElementById('qualityChart')) {
+    new Chart(document.getElementById('qualityChart'), {
+      type: 'bar',
+      data: {
+        labels: ['Pass', 'Warn', 'Fail'],
+        datasets: [{
+          label: 'Metrics',
+          data: [10, 0, 0],
+          backgroundColor: ['#27ae60', '#f39c12', '#e74c3c']
+        }]
+      }
+    });
+  }
+}
+
+window.addEventListener('click', e => {
+  if (e.target.id === 'variantModal') closeVariantModal();
+});
+
+window.addEventListener('load', () => {
+  console.log('✅ GenomicsAI Pro Complete Platform Loaded');
+  initCharts();
+});
+</script>
+
+</body>
+</html>
